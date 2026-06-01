@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -98,6 +98,23 @@
       padding:.5rem 1.1rem; transition:background .2s,color .2s;
     }
     .nav-cta:hover { background:var(--mustard); color:var(--moss); }
+
+    /* ── Language toggle ──────────────────────────── */
+    .lang-toggle {
+      font-family:'DM Mono',monospace; font-size:.53rem;
+      letter-spacing:.14em; text-transform:uppercase;
+      color:var(--moss); background:transparent;
+      border:1px solid rgba(68,75,52,.25);
+      padding:.5rem .7rem; cursor:pointer; line-height:1;
+      display:inline-flex; align-items:center; gap:.15rem;
+      transition:border-color .2s;
+    }
+    .lang-toggle:hover { border-color:var(--moss); }
+    .lang-toggle .lang-opt { opacity:.4; transition:opacity .2s; }
+    .lang-toggle .lang-opt.active { opacity:1; font-weight:500; }
+    .lang-toggle .lang-sep { opacity:.3; margin:0 .1rem; }
+
+    .nav-mobile-right { display:none; align-items:center; gap:.6rem; }
     .mobile-cta {
       display:none;
       font-family:'DM Mono',monospace; font-size:.52rem;
@@ -136,97 +153,147 @@
     .proof-item { padding:1.5rem; border-right:1px solid rgba(68,75,52,.12); }
     .proof-item:last-child { border-right:0; }
 
-    /* ── Engine ─────────────────────────────────── */
-    .engine-shell { margin-top:1rem; padding:.25rem 0 0; overflow:visible; }
+    /* ════════════════════════════════════════════════
+       ENGINE — rebuilt: SVG flow diagram + synced nodes
+       ════════════════════════════════════════════════ */
+    .engine-shell { margin-top:1.25rem; padding:.5rem 0 0; }
 
-    .engine-wrap {
+    .engine-stage {
       position:relative;
       display:grid;
-      grid-template-columns:1fr auto 1fr;
+      grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);
       align-items:center;
-      gap:clamp(.75rem,2.8vw,2rem);
-      isolation:isolate;
+      gap:clamp(1rem,3vw,2.75rem);
+      padding:1.5rem 0;
     }
 
-    .engine-lane { position:relative; height:13rem; overflow:hidden; }
+    /* Connective SVG sits behind the columns, spanning full width */
+    .engine-flow-svg {
+      position:absolute; inset:0;
+      width:100%; height:100%;
+      pointer-events:none; z-index:1;
+      overflow:visible;
+    }
+    .flow-path {
+      fill:none;
+      stroke:rgba(68,75,52,.18);
+      stroke-width:1.5;
+    }
+    .flow-path-lit {
+      fill:none;
+      stroke:var(--moss);
+      stroke-width:1.5;
+      stroke-dasharray:5 7;
+      opacity:0;
+    }
+    .is-active .flow-path-lit {
+      opacity:.55;
+      animation:dashMove 1.1s linear infinite;
+    }
+    @keyframes dashMove { to { stroke-dashoffset:-24; } }
 
-    .engine-tag {
-      position:absolute; opacity:0;
-      white-space:nowrap; pointer-events:none;
-      will-change:transform,opacity; transform:translateZ(0); z-index:5;
+    /* Node columns */
+    .engine-col {
+      position:relative; z-index:3;
+      display:flex; flex-direction:column;
+      gap:.85rem;
+      align-items:flex-start;
+    }
+    .engine-col.outputs { align-items:flex-end; }
+
+    .node {
+      position:relative;
+      display:inline-flex; align-items:center; gap:.6rem;
       font-family:'DM Mono',monospace;
-      font-size:.68rem; letter-spacing:.13em; text-transform:uppercase;
+      font-size:.66rem; letter-spacing:.12em; text-transform:uppercase;
+      padding:.6rem .9rem;
+      background:var(--moss); color:var(--beige);
+      box-shadow:5px 5px 0 var(--bluegrey);
+      opacity:0; transform:translateX(-22px);
+      transition:opacity .55s cubic-bezier(.16,1,.3,1), transform .55s cubic-bezier(.16,1,.3,1);
+    }
+    .node.out {
+      background:var(--bluegrey); color:var(--moss);
+      box-shadow:5px 5px 0 var(--moss);
+      transform:translateX(22px); flex-direction:row-reverse;
+    }
+    .node .dot {
+      width:6px; height:6px; border-radius:50%;
+      background:var(--mustard); flex-shrink:0;
+    }
+    .node.out .dot { background:var(--moss); }
+
+    .is-active .node { opacity:1; transform:none; }
+    .is-active .node.n1 { transition-delay:.15s }
+    .is-active .node.n2 { transition-delay:.30s }
+    .is-active .node.n3 { transition-delay:.45s }
+    .is-active .node.n4 { transition-delay:.60s }
+    .is-active .node.out.n1 { transition-delay:.75s }
+    .is-active .node.out.n2 { transition-delay:.90s }
+    .is-active .node.out.n3 { transition-delay:1.05s }
+    .is-active .node.out.n4 { transition-delay:1.20s }
+
+    /* When lit, a node briefly flashes its accent edge */
+    .node.pulse::after {
+      content:""; position:absolute; inset:0;
+      border:1.5px solid var(--mustard);
+      opacity:0;
+    }
+    .node.firing::after { animation:nodeFire .9s ease-out; }
+    @keyframes nodeFire {
+      0% { opacity:1; transform:scale(1); }
+      100% { opacity:0; transform:scale(1.08); }
     }
 
-    .tag-1{top:.2rem}  .tag-2{top:3.3rem}  .tag-3{top:6.45rem}  .tag-4{top:9.6rem}
-    .input-tag  { right:0; }
-    .output-tag { left:0; }
-
-    @keyframes inputFlowDesktop {
-      0%   { transform:translate3d(-220px,0,0); opacity:0; }
-      8%   { opacity:1; }
-      28%  { transform:translate3d(-70px,0,0); opacity:1; }
-      40%,100% { transform:translate3d(-18px,0,0); opacity:0; }
+    /* Core */
+    .engine-core-wrap {
+      position:relative; z-index:4;
+      display:grid; place-items:center;
     }
-    @keyframes outputFlowDesktop {
-      0%,48% { transform:translate3d(10px,0,0); opacity:0; }
-      58%    { transform:translate3d(40px,0,0); opacity:1; }
-      82%    { transform:translate3d(145px,0,0); opacity:1; }
-      96%,100%{ transform:translate3d(220px,0,0); opacity:0; }
-    }
-
-    .is-active .input-tag  { animation:inputFlowDesktop  12s cubic-bezier(.45,0,.2,1) infinite; }
-    .is-active .output-tag { animation:outputFlowDesktop 12s cubic-bezier(.45,0,.2,1) infinite; }
-
-    .is-active .tag-1{animation-delay:0s}
-    .is-active .tag-2{animation-delay:.45s}
-    .is-active .tag-3{animation-delay:.9s}
-    .is-active .tag-4{animation-delay:1.35s}
-
     .plexos-core-box {
-      position:relative; z-index:20;
-      width:8.5rem; height:8.5rem;
+      position:relative;
+      width:9rem; height:9rem;
       display:grid; place-items:center;
       background:var(--mustard);
-      animation:coreBreathe 3.4s ease-in-out infinite;
-      will-change:transform,box-shadow;
+      box-shadow:7px 7px 0 var(--moss);
+      transition:transform .3s;
     }
-    .plexos-core-box:hover { transform:scale(1.06) rotate(-1deg); }
+    .is-active .plexos-core-box { animation:coreBreathe 3.6s ease-in-out infinite; }
+    .plexos-core-box:hover { transform:scale(1.05) rotate(-1deg); }
+    .plexos-core-box img { width:62px; height:auto; display:block; }
 
     @keyframes coreBreathe {
-      0%,100% {
-        transform:scale(1);
-        box-shadow:7px 7px 0 var(--moss), 0 0 16px rgba(233,193,115,.3);
-      }
-      50% {
-        transform:scale(1.045);
-        box-shadow:7px 7px 0 var(--moss), 0 0 30px rgba(233,193,115,.55);
-      }
+      0%,100% { box-shadow:7px 7px 0 var(--moss), 0 0 0 0 rgba(233,193,115,0); }
+      50%      { box-shadow:7px 7px 0 var(--moss), 0 0 0 14px rgba(233,193,115,.14); }
     }
 
-    /* Particles */
-    .particle-field { position:absolute; inset:0; pointer-events:none; z-index:1; overflow:hidden; }
-    .particle { position:absolute; width:5px; height:5px; border-radius:50%; opacity:0; will-change:transform,opacity; }
-    .particle.in  { background:var(--mustard); box-shadow:0 0 7px rgba(233,193,115,.8); left:20%; animation:particleIn  3.8s ease-in-out infinite; }
-    .particle.out { background:var(--moss);    box-shadow:0 0 6px rgba(68,75,52,.5);     left:50%; animation:particleOut 3.8s ease-in-out infinite; }
-    .particle.p1{top:28%;animation-delay:0s}
-    .particle.p2{top:48%;animation-delay:.75s}
-    .particle.p3{top:68%;animation-delay:1.5s}
-    .particle.out.p1{top:32%;animation-delay:1.8s}
-    .particle.out.p2{top:50%;animation-delay:2.55s}
-    .particle.out.p3{top:66%;animation-delay:3.3s}
-
-    @keyframes particleIn {
-      0%   { transform:translate3d(-80px,0,0) scale(.5); opacity:0; }
-      18%  { opacity:.8; }
-      70%  { opacity:.8; }
-      100% { transform:translate3d(34vw,0,0) scale(.2); opacity:0; }
+    /* Concentric ring that emits from the core on each cycle */
+    .core-ring {
+      position:absolute; inset:0; margin:auto;
+      width:9rem; height:9rem;
+      border:1.5px solid var(--mustard);
+      opacity:0; pointer-events:none;
     }
-    @keyframes particleOut {
-      0%   { transform:translate3d(0,0,0) scale(.4); opacity:0; }
-      18%  { opacity:.65; }
-      74%  { opacity:.65; }
-      100% { transform:translate3d(34vw,0,0) scale(.2); opacity:0; }
+    .is-active .core-ring { animation:coreRing 3.6s ease-out infinite; }
+    .is-active .core-ring.r2 { animation-delay:1.8s; }
+    @keyframes coreRing {
+      0%   { opacity:.5; transform:scale(1); }
+      70%  { opacity:0;  transform:scale(1.55); }
+      100% { opacity:0;  transform:scale(1.55); }
+    }
+
+    .engine-core-wrap { margin-bottom:0; }
+
+    /* Moving pulses along the dynamically-drawn paths */
+    .flow-pulse {
+      fill:var(--mustard);
+      opacity:0;
+    }
+    .is-active .flow-pulse { animation:pulseFade 3.6s linear infinite; }
+    @keyframes pulseFade {
+      0%,4% { opacity:0; }
+      8%,46% { opacity:1; }
+      50%,100% { opacity:0; }
     }
 
     /* ── Action lines ───────────────────────────── */
@@ -267,6 +334,12 @@
       background:rgba(242,237,229,.08);
       border-color:rgba(233,193,115,.6);
     }
+    .media-card .card-arrow {
+      font-family:'DM Mono',monospace; font-size:.7rem;
+      color:var(--mustard); opacity:0; transform:translateX(-4px);
+      transition:opacity .22s, transform .22s; margin-top:.6rem;
+    }
+    .media-card:hover .card-arrow { opacity:1; transform:none; }
 
     /* ── CTA button ─────────────────────────────── */
     .cta-button {
@@ -285,6 +358,8 @@
     @media(max-width:900px) {
       .nav-links { display:none; }
       .mobile-cta { display:inline-block; }
+      .nav-mobile-right { display:inline-flex; }
+      .nav-mobile-right .lang-toggle { padding:.4rem .55rem; font-size:.5rem; }
       .nav-inner  { height:60px; padding:0 1.25rem; }
 
       .sw { padding:3.5rem 1.25rem; }
@@ -297,39 +372,21 @@
       .proof-item { border-right:0; border-bottom:1px solid rgba(68,75,52,.12); }
       .proof-item:last-child { border-bottom:0; }
 
-      .engine-wrap {
+      /* Engine → vertical stack on mobile */
+      .engine-stage {
         grid-template-columns:1fr;
         grid-template-rows:auto auto auto;
-        gap:1.25rem;
+        gap:2rem;
+        justify-items:center;
       }
-      .engine-lane { height:10rem; width:100%; }
-      .input-tag,.output-tag { left:50%; right:auto; transform:translateX(-50%); }
-      .tag-1{top:0} .tag-2{top:2.35rem} .tag-3{top:4.7rem} .tag-4{top:7.05rem}
-      .plexos-core-box { margin:0 auto; width:7.5rem; height:7.5rem; }
-
-      @keyframes inputFlowDesktop {
-        0%   { transform:translate3d(-50%,-85px,0); opacity:0; }
-        8%   { opacity:1; }
-        28%  { transform:translate3d(-50%,-22px,0); opacity:1; }
-        40%,100% { transform:translate3d(-50%,6px,0); opacity:0; }
-      }
-      @keyframes outputFlowDesktop {
-        0%,48% { transform:translate3d(-50%,-6px,0); opacity:0; }
-        58%    { transform:translate3d(-50%,18px,0); opacity:1; }
-        82%    { transform:translate3d(-50%,70px,0); opacity:1; }
-        96%,100%{ transform:translate3d(-50%,105px,0); opacity:0; }
-      }
-      @keyframes particleIn {
-        0%   { transform:translate3d(0,-85px,0) scale(.5); opacity:0; }
-        18%  { opacity:.7; }
-        100% { transform:translate3d(0,85px,0) scale(.2); opacity:0; }
-      }
-      @keyframes particleOut {
-        0%   { transform:translate3d(0,-28px,0) scale(.5); opacity:0; }
-        18%  { opacity:.6; }
-        100% { transform:translate3d(0,85px,0) scale(.2); opacity:0; }
-      }
-      .particle.in,.particle.out { left:50%; }
+      .engine-flow-svg { display:none; }
+      .engine-col { width:100%; max-width:320px; align-items:stretch; }
+      .engine-col.outputs { align-items:stretch; }
+      .node, .node.out { transform:translateY(18px); flex-direction:row; justify-content:flex-start; }
+      .node.out { flex-direction:row; }
+      .is-active .node { transform:none; }
+      .plexos-core-box { width:7.5rem; height:7.5rem; }
+      .core-ring { width:7.5rem; height:7.5rem; }
 
       .action-row { grid-template-columns:1fr; padding:1.75rem 0; }
       .action-row:hover { padding-left:0; }
@@ -338,12 +395,25 @@
     @media(prefers-reduced-motion:reduce) {
       html { scroll-behavior:auto; }
       .reveal { opacity:1; transform:none; transition:none; }
-      .is-active .input-tag,.is-active .output-tag,.plexos-core-box,.particle { animation:none !important; }
-      .engine-tag { opacity:1; position:static; transform:none; margin:.35rem auto; }
-      .engine-lane { height:auto; display:flex; flex-direction:column; align-items:center; }
-      .particle-field { display:none; }
+      .node { opacity:1 !important; transform:none !important; }
+      .is-active .plexos-core-box,
+      .is-active .core-ring,
+      .is-active .flow-pulse,
+      .is-active .flow-path-lit { animation:none !important; }
+      .flow-path-lit { opacity:.3; }
     }
   </style>
+  <script>
+    /* Set language before render to avoid flash. Default PT; honor saved choice; else detect EN browsers. */
+    (function(){
+      try {
+        var saved = localStorage.getItem('plexos-lang');
+        var lang = saved || ((navigator.language||'pt').toLowerCase().indexOf('pt') === 0 ? 'pt' : 'en');
+        document.documentElement.lang = (lang === 'en' ? 'en' : 'pt-BR');
+        document.documentElement.setAttribute('data-lang', lang);
+      } catch(e){}
+    })();
+  </script>
 </head>
 
 <body class="antialiased">
@@ -353,22 +423,27 @@
   <div id="nav-progress"></div>
   <div class="nav-inner">
 
-    <a href="#why" class="brand-link">
-      <img src="plexos-logo.svg" alt="Plexos Institute" style="height:36px;width:auto;display:block;">
-      <div style="display:flex;flex-direction:column;line-height:1;gap:3px;">
-        <span style="font-weight:900;font-size:.88rem;letter-spacing:.07em;text-transform:uppercase;color:var(--moss)">Plexos</span>
-        <span class="label" style="font-size:.5rem;opacity:.42;letter-spacing:.2em">Institute</span>
-      </div>
+    <!-- Single main logo only (secondary text block removed) -->
+    <a href="#why" class="brand-link" aria-label="Instituto Plexos">
+      <img src="plexos-logo.svg" alt="Instituto Plexos" style="height:36px;width:auto;display:block;">
     </a>
 
     <div class="nav-links">
-      <a href="#why"  class="nav-link">Purpose</a>
-      <a href="#how"  class="nav-link">Methodology</a>
-      <a href="#what" class="nav-link">Action Lines</a>
-      <a href="#cta"  class="nav-cta">Partner With Us</a>
+      <a href="#why"  class="nav-link" data-i18n="nav.purpose">Propósito</a>
+      <a href="#how"  class="nav-link" data-i18n="nav.method">Metodologia</a>
+      <a href="#what" class="nav-link" data-i18n="nav.lines">Linhas de Ação</a>
+      <a href="#cta"  class="nav-cta" data-i18n="nav.cta">Seja Parceiro</a>
+      <button type="button" id="lang-toggle" class="lang-toggle" aria-label="Switch language">
+        <span class="lang-opt" data-lang="pt">PT</span><span class="lang-sep">/</span><span class="lang-opt" data-lang="en">EN</span>
+      </button>
     </div>
 
-    <a href="#cta" class="mobile-cta">Contact</a>
+    <div class="nav-mobile-right">
+      <button type="button" id="lang-toggle-m" class="lang-toggle" aria-label="Switch language">
+        <span class="lang-opt" data-lang="pt">PT</span><span class="lang-sep">/</span><span class="lang-opt" data-lang="en">EN</span>
+      </button>
+      <a href="#cta" class="mobile-cta" data-i18n="nav.contact">Contato</a>
+    </div>
   </div>
 </nav>
 
@@ -378,16 +453,16 @@
   <div class="hero-left chevron-bg">
     <div style="max-width:720px;" class="reveal in">
       <span class="section-cap"></span>
-      <span class="eyebrow" style="margin-bottom:1.5rem;">Why We Exist</span>
-      <h1 class="display-xl" style="margin-bottom:2rem;">
-        Emerging<br>Technologies<br>for Public<br>Goods
+      <span class="eyebrow" style="margin-bottom:1.5rem;" data-i18n="hero.eyebrow">Por Que Existimos</span>
+      <h1 class="display-xl" style="margin-bottom:2rem;" data-i18n="hero.title" data-i18n-html>
+        Tecnologias<br>Emergentes<br>para Bens<br>Públicos
       </h1>
-      <p class="body-text" style="color:rgba(68,75,52,.75);margin-bottom:2.5rem;max-width:580px;">
-        Rooted in our statutory mandate, we advance applied R&amp;D, standards, and pilots for
-        <span class="hl">digital public infrastructure</span> across Latin America. We hold
-        <span class="hl">open source</span> and <span class="hl">privacy</span> as core values.
+      <p class="body-text" style="color:rgba(68,75,52,.75);margin-bottom:2.5rem;max-width:580px;" data-i18n="hero.body" data-i18n-html>
+        Com base em nosso mandato estatutário, avançamos P&amp;D aplicada, padrões e pilotos para
+        <span class="hl">infraestrutura pública digital</span> na América Latina. Adotamos o
+        <span class="hl">código aberto</span> e a <span class="hl">privacidade</span> como valores centrais.
       </p>
-      <span class="label" style="opacity:.32">Latin America · AI · Web3 · DPI</span>
+      <span class="label" style="opacity:.32" data-i18n="hero.tag">América Latina · IA · Web3 · IPD</span>
     </div>
   </div>
 </section>
@@ -400,66 +475,65 @@
     <div class="section-grid reveal" id="howGrid">
       <div>
         <span class="section-cap"></span>
-        <span class="eyebrow" style="margin-bottom:1.25rem;">How We Work</span>
-        <h2 class="display-lg">Applied R&amp;D.<br>Built in<br>Practice.</h2>
+        <span class="eyebrow" style="margin-bottom:1.25rem;" data-i18n="how.eyebrow">Como Trabalhamos</span>
+        <h2 class="display-lg" data-i18n="how.title" data-i18n-html>P&amp;D Aplicada.<br>Construída na<br>Prática.</h2>
       </div>
-      <p class="body-text" style="align-self:center;">
-        Plexos operates as a coordination layer, weaving together governments, institutions, and markets. We turn complex questions into actionable intelligence, and emerging opportunities into everyday solutions: tested, refined, and scaled in the real world.
+      <p class="body-text" style="align-self:center;" data-i18n="how.body">
+        O Plexos atua como uma camada de coordenação, conectando governos, instituições e mercados. Transformamos questões complexas em inteligência acionável, e oportunidades emergentes em soluções cotidianas: testadas, refinadas e escaladas no mundo real.
       </p>
     </div>
 
     <div class="proof-row reveal d1">
       <div class="proof-item">
-        <span class="label" style="opacity:.42;display:block;margin-bottom:.85rem;">Research</span>
-        <p style="font-weight:900;text-transform:uppercase;line-height:1.2;font-size:.95rem;">Technical intelligence for public-sector decisions.</p>
+        <span class="label" style="opacity:.42;display:block;margin-bottom:.85rem;" data-i18n="proof.1.label">Pesquisa</span>
+        <p style="font-weight:900;text-transform:uppercase;line-height:1.2;font-size:.95rem;" data-i18n="proof.1.body">Inteligência técnica para decisões do setor público.</p>
       </div>
       <div class="proof-item">
-        <span class="label" style="opacity:.42;display:block;margin-bottom:.85rem;">Standards</span>
-        <p style="font-weight:900;text-transform:uppercase;line-height:1.2;font-size:.95rem;">Governance models, protocols, and implementation rails.</p>
+        <span class="label" style="opacity:.42;display:block;margin-bottom:.85rem;" data-i18n="proof.2.label">Padrões</span>
+        <p style="font-weight:900;text-transform:uppercase;line-height:1.2;font-size:.95rem;" data-i18n="proof.2.body">Modelos de governança, protocolos e trilhos de implementação.</p>
       </div>
       <div class="proof-item">
-        <span class="label" style="opacity:.42;display:block;margin-bottom:.85rem;">Pilots</span>
-        <p style="font-weight:900;text-transform:uppercase;line-height:1.2;font-size:.95rem;">Field-tested infrastructure with real institutional partners.</p>
+        <span class="label" style="opacity:.42;display:block;margin-bottom:.85rem;" data-i18n="proof.3.label">Pilotos</span>
+        <p style="font-weight:900;text-transform:uppercase;line-height:1.2;font-size:.95rem;" data-i18n="proof.3.body">Infraestrutura testada em campo com parceiros institucionais reais.</p>
       </div>
       <div class="proof-item">
-        <span class="label" style="opacity:.42;display:block;margin-bottom:.85rem;">Scale</span>
-        <p style="font-weight:900;text-transform:uppercase;line-height:1.2;font-size:.95rem;">From experimentation to durable public value.</p>
+        <span class="label" style="opacity:.42;display:block;margin-bottom:.85rem;" data-i18n="proof.4.label">Escala</span>
+        <p style="font-weight:900;text-transform:uppercase;line-height:1.2;font-size:.95rem;" data-i18n="proof.4.body">Da experimentação ao valor público duradouro.</p>
       </div>
     </div>
 
-    <!-- Engine -->
+    <!-- ════ Engine (rebuilt) ════ -->
     <div class="engine-shell reveal d2">
-      <span class="eyebrow" style="margin-bottom:1.5rem;">Methodology in Motion</span>
-      <div id="engine-section" class="engine-wrap">
+      <span class="eyebrow" style="margin-bottom:1.5rem;" data-i18n="how.engine.eyebrow">Metodologia em Movimento</span>
 
-        <div class="particle-field">
-          <span class="particle in p1"></span>
-          <span class="particle in p2"></span>
-          <span class="particle in p3"></span>
-          <span class="particle out p1"></span>
-          <span class="particle out p2"></span>
-          <span class="particle out p3"></span>
-        </div>
+      <div id="engine-section" class="engine-stage">
+
+        <!-- Connective flow diagram — paths drawn dynamically from real node positions -->
+        <svg id="engine-flow-svg" class="engine-flow-svg" aria-hidden="true"></svg>
 
         <!-- Inputs -->
-        <div class="engine-lane">
-          <div class="engine-tag input-tag tag-1 bg-moss text-beige px-4 py-2 shadow-[6px_6px_0px_#ccd1de]">Governments</div>
-          <div class="engine-tag input-tag tag-2 bg-moss text-beige px-4 py-2 shadow-[6px_6px_0px_#ccd1de]">Institutions</div>
-          <div class="engine-tag input-tag tag-3 bg-moss text-beige px-4 py-2 shadow-[6px_6px_0px_#ccd1de]">People</div>
-          <div class="engine-tag input-tag tag-4 bg-moss text-beige px-4 py-2 shadow-[6px_6px_0px_#ccd1de]">Markets</div>
+        <div class="engine-col inputs">
+          <div class="node n1" data-side="in"><span class="dot"></span><span data-i18n="node.in.1">Governos</span></div>
+          <div class="node n2" data-side="in"><span class="dot"></span><span data-i18n="node.in.2">Instituições</span></div>
+          <div class="node n3" data-side="in"><span class="dot"></span><span data-i18n="node.in.3">Pessoas</span></div>
+          <div class="node n4" data-side="in"><span class="dot"></span><span data-i18n="node.in.4">Mercados</span></div>
         </div>
 
         <!-- Core -->
-        <div class="plexos-core-box">
-          <img src="plexos-logo.svg" alt="Plexos" style="width:60px;height:auto;display:block;">
+        <div class="engine-core-wrap">
+          <span class="core-ring r1"></span>
+          <span class="core-ring r2"></span>
+          <div class="plexos-core-box" id="engine-core">
+            <img src="plexos-logo.svg" alt="Plexos">
+          </div>
         </div>
 
         <!-- Outputs -->
-        <div class="engine-lane">
-          <div class="engine-tag output-tag tag-1 bg-bluegrey text-moss px-4 py-2 shadow-[6px_6px_0px_#444b34]">Standards</div>
-          <div class="engine-tag output-tag tag-2 bg-bluegrey text-moss px-4 py-2 shadow-[6px_6px_0px_#444b34]">Sandboxes</div>
-          <div class="engine-tag output-tag tag-3 bg-bluegrey text-moss px-4 py-2 shadow-[6px_6px_0px_#444b34]">Pilots</div>
-          <div class="engine-tag output-tag tag-4 bg-bluegrey text-moss px-4 py-2 shadow-[6px_6px_0px_#444b34]">Public Goods</div>
+        <div class="engine-col outputs">
+          <div class="node out n1" data-side="out"><span class="dot"></span><span data-i18n="node.out.1">Padrões</span></div>
+          <div class="node out n2" data-side="out"><span class="dot"></span><span data-i18n="node.out.2">Sandboxes</span></div>
+          <div class="node out n3" data-side="out"><span class="dot"></span><span data-i18n="node.out.3">Pilotos</span></div>
+          <div class="node out n4" data-side="out"><span class="dot"></span><span data-i18n="node.out.4">Bens Públicos</span></div>
         </div>
 
       </div>
@@ -474,32 +548,32 @@
   <div class="sw">
     <div class="reveal" style="margin-bottom:3rem;">
       <span class="section-cap"></span>
-      <span class="eyebrow" style="margin-bottom:1.25rem;">What We Deliver</span>
-      <h2 class="display-lg">Three Integrated Action Lines</h2>
+      <span class="eyebrow" style="margin-bottom:1.25rem;" data-i18n="what.eyebrow">O Que Entregamos</span>
+      <h2 class="display-lg" data-i18n="what.title">Três Linhas de Ação Integradas</h2>
     </div>
 
     <div class="action-row reveal d1">
       <div>
-        <span class="label" style="opacity:.35;display:block;margin-bottom:.5rem;">Line 01</span>
-        <h3 class="display-md">Education &amp; Research</h3>
+        <span class="label" style="opacity:.35;display:block;margin-bottom:.5rem;" data-i18n="line.1.label">Linha 01</span>
+        <h3 class="display-md" data-i18n="line.1.title">Educação &amp; Pesquisa</h3>
       </div>
-      <p class="body-text">Fostering innovation through workshops, learning modules, ecosystem intelligence, and technical standards for emerging technology.</p>
+      <p class="body-text" data-i18n="line.1.body">Fomentando a inovação por meio de workshops, módulos de aprendizagem, inteligência de ecossistema e padrões técnicos para tecnologias emergentes.</p>
     </div>
 
     <div class="action-row reveal d2">
       <div>
-        <span class="label" style="opacity:.35;display:block;margin-bottom:.5rem;">Line 02</span>
-        <h3 class="display-md">Development</h3>
+        <span class="label" style="opacity:.35;display:block;margin-bottom:.5rem;" data-i18n="line.2.label">Linha 02</span>
+        <h3 class="display-md" data-i18n="line.2.title">Desenvolvimento</h3>
       </div>
-      <p class="body-text">Designing, prototyping, and deploying pilots, infrastructure, and interoperable systems that address real public-sector needs.</p>
+      <p class="body-text" data-i18n="line.2.body">Desenhando, prototipando e implantando pilotos, infraestrutura e sistemas interoperáveis que atendem a necessidades reais do setor público.</p>
     </div>
 
     <div class="action-row reveal d3">
       <div>
-        <span class="label" style="opacity:.35;display:block;margin-bottom:.5rem;">Line 03</span>
-        <h3 class="display-md">Partnerships</h3>
+        <span class="label" style="opacity:.35;display:block;margin-bottom:.5rem;" data-i18n="line.3.label">Linha 03</span>
+        <h3 class="display-md" data-i18n="line.3.title">Parcerias</h3>
       </div>
-      <p class="body-text">Structuring cooperation agreements, legal frameworks, and multi-stakeholder programs to coordinate long-term delivery of public value.</p>
+      <p class="body-text" data-i18n="line.3.body">Estruturando acordos de cooperação, marcos jurídicos e programas multissetoriais para coordenar a entrega de valor público de longo prazo.</p>
     </div>
   </div>
 </section>
@@ -512,11 +586,11 @@
     <div class="section-grid reveal" id="ecoGrid" style="margin-bottom:3rem;">
       <div>
         <span class="section-cap" style="background:var(--mustard);"></span>
-        <span class="eyebrow" style="color:var(--mustard);opacity:1;margin-bottom:1.25rem;">Our Ecosystem in Action</span>
-        <h2 class="display-lg" style="color:var(--beige);">Projects, News &amp; Partners</h2>
+        <span class="eyebrow" style="color:var(--mustard);opacity:1;margin-bottom:1.25rem;" data-i18n="eco.eyebrow">Nosso Ecossistema em Ação</span>
+        <h2 class="display-lg" style="color:var(--beige);" data-i18n="eco.title" data-i18n-html>Projetos, Notícias &amp; Parceiros</h2>
       </div>
-      <p class="body-text" style="color:rgba(242,237,229,.55);">
-        A living portfolio of technical cooperation, institutional research, applied pilots, and ecosystem-building initiatives connecting emerging technologies with real public outcomes.
+      <p class="body-text" style="color:rgba(242,237,229,.55);" data-i18n="eco.body">
+        Um portfólio vivo de cooperação técnica, pesquisa institucional, pilotos aplicados e iniciativas de construção de ecossistema que conectam tecnologias emergentes a resultados públicos reais.
       </p>
     </div>
 
@@ -524,25 +598,38 @@
       <span class="partner-tag">BBTS</span>
       <span class="partner-tag">Porto Digital</span>
       <span class="partner-tag">Serpro</span>
-      <span class="partner-tag">Recife City Hall</span>
+      <span class="partner-tag" data-i18n="partner.recife">Prefeitura do Recife</span>
       <span class="partner-tag">EDinheiro</span>
       <span class="partner-tag">Ethereum Foundation</span>
-      <span class="partner-tag hi">Rede Blockchain Brasil</span>
+      <span class="partner-tag hi" data-i18n="partner.rbb">Rede Blockchain Brasil</span>
     </div>
 
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1.25rem;" class="reveal d2" id="mediaGrid">
-      <div class="media-card">
-        <span class="label" style="color:var(--mustard);">News</span>
-        <p style="color:var(--beige);font-weight:700;font-size:1.15rem;line-height:1.3;">Technical Cooperation Agreement with Recife City Hall</p>
-      </div>
-      <div class="media-card">
-        <span class="label" style="color:var(--mustard);">Document</span>
-        <p style="color:var(--beige);font-weight:700;font-size:1.15rem;line-height:1.3;">Committee Designation and Governance Framework</p>
-      </div>
-      <div class="media-card">
-        <span class="label" style="color:var(--mustard);">Video</span>
-        <p style="color:var(--beige);font-weight:700;font-size:1.15rem;line-height:1.3;">Onboarding Series: Blockchain Infrastructure</p>
-      </div>
+
+      <a class="media-card" href="https://www2.recife.pe.gov.br/noticias/04/07/2024/prefeitura-do-recife-e-plexos-institute-firmam-acordo-de-cooperacao-tecnica-para" target="_blank" rel="noopener">
+        <span class="label" style="color:var(--mustard);" data-i18n="card.1.tag">Notícia</span>
+        <div>
+          <p style="color:var(--beige);font-weight:700;font-size:1.15rem;line-height:1.3;" data-i18n="card.1.title">Acordo de Cooperação Técnica com a Prefeitura do Recife</p>
+          <span class="card-arrow" data-i18n="card.1.cta">Ler no site da Prefeitura ↗</span>
+        </div>
+      </a>
+
+      <a class="media-card" href="https://github.com/RBBNet/rbb/blob/master/governanca/reunioes_comite_executivo/atas/2026-03-12-RBB-Ata-42-CE-v02-assinada.pdf" target="_blank" rel="noopener">
+        <span class="label" style="color:var(--mustard);" data-i18n="card.2.tag">Documento</span>
+        <div>
+          <p style="color:var(--beige);font-weight:700;font-size:1.15rem;line-height:1.3;" data-i18n="card.2.title" data-i18n-html>Coordenação da RBB &amp; Marco de Governança</p>
+          <span class="card-arrow" data-i18n="card.2.cta">Ver ata do Comitê Executivo ↗</span>
+        </div>
+      </a>
+
+      <a class="media-card" href="https://www.recity.org/" target="_blank" rel="noopener">
+        <span class="label" style="color:var(--mustard);" data-i18n="card.3.tag">Iniciativa</span>
+        <div>
+          <p style="color:var(--beige);font-weight:700;font-size:1.15rem;line-height:1.3;" data-i18n="card.3.title">[RE]City — Cidade Pop-Up Regenerativa no Recife</p>
+          <span class="card-arrow" data-i18n="card.3.cta">Conhecer a [RE]City ↗</span>
+        </div>
+      </a>
+
     </div>
 
   </div>
@@ -555,12 +642,12 @@
 
     <div class="reveal">
       <span class="section-cap"></span>
-      <span class="eyebrow" style="margin-bottom:1.25rem;">Partner With Us</span>
-      <h2 class="display-lg">Build the Next Layer of Public Infrastructure</h2>
+      <span class="eyebrow" style="margin-bottom:1.25rem;" data-i18n="cta.eyebrow">Seja Parceiro</span>
+      <h2 class="display-lg" data-i18n="cta.title">Construa a Próxima Camada da Infraestrutura Pública</h2>
     </div>
 
     <div class="reveal d1">
-      <a href="mailto:contato@plexosinstitute.org" class="cta-button">Contact Us ↗</a>
+      <a href="mailto:contato@plexosinstitute.org" class="cta-button" data-i18n="cta.button">Fale Conosco ↗</a>
     </div>
 
   </div>
@@ -573,16 +660,16 @@
 
     <div style="display:flex;align-items:center;gap:.55rem;">
       <img src="plexos-logo.svg" alt="Plexos" style="height:18px;width:auto;display:block;opacity:.35;">
-      <span style="font-weight:900;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(242,237,229,.3);">Plexos Institute</span>
+      <span style="font-weight:900;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(242,237,229,.3);">Instituto Plexos</span>
     </div>
 
     <div style="display:flex;gap:1.75rem;">
-      <a href="#why"  class="nav-link" style="color:rgba(242,237,229,.28);">Purpose</a>
-      <a href="#how"  class="nav-link" style="color:rgba(242,237,229,.28);">Methodology</a>
-      <a href="#what" class="nav-link" style="color:rgba(242,237,229,.28);">Action Lines</a>
+      <a href="#why"  class="nav-link" style="color:rgba(242,237,229,.28);" data-i18n="nav.purpose">Propósito</a>
+      <a href="#how"  class="nav-link" style="color:rgba(242,237,229,.28);" data-i18n="nav.method">Metodologia</a>
+      <a href="#what" class="nav-link" style="color:rgba(242,237,229,.28);" data-i18n="nav.lines">Linhas de Ação</a>
     </div>
 
-    <span class="label" style="font-size:.52rem;color:rgba(233,193,115,.35);">© 2026 Instituto Plexos</span>
+    <span class="label" style="font-size:.52rem;color:rgba(233,193,115,.35);" data-i18n="footer.copy">© 2026 Instituto Plexos</span>
   </div>
 </footer>
 
@@ -601,24 +688,207 @@
   }, { threshold:0, rootMargin:'0px 0px -50px 0px' });
   document.querySelectorAll('.reveal').forEach(el => revIO.observe(el));
 
-  /* ── Engine trigger ── */
-  const engine = document.getElementById('engine-section');
-  const engIO  = new IntersectionObserver(entries => {
-    entries.forEach(e => { if (e.isIntersecting) engine.classList.add('is-active'); });
-  }, { threshold:.3 });
-  engIO.observe(engine);
+  /* ── Engine: draw connectors from real node positions to the core ── */
+  (function(){
+    const stage = document.getElementById('engine-section');
+    const svg   = document.getElementById('engine-flow-svg');
+    const core  = document.getElementById('engine-core');
+    if (!stage || !svg || !core) return;
+
+    const SVGNS = 'http://www.w3.org/2000/svg';
+    const inNodes  = [...stage.querySelectorAll('.node[data-side="in"]')];
+    const outNodes = [...stage.querySelectorAll('.node[data-side="out"]')];
+
+    function draw(){
+      const stageBox = stage.getBoundingClientRect();
+      const W = stageBox.width, H = stageBox.height;
+      if (!W || !H) return;
+
+      svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+      svg.innerHTML = '';
+
+      // core edge anchors, relative to the stage
+      const cb = core.getBoundingClientRect();
+      const coreLeft  = { x: cb.left  - stageBox.left, y: cb.top - stageBox.top + cb.height/2 };
+      const coreRight = { x: cb.right - stageBox.left, y: cb.top - stageBox.top + cb.height/2 };
+
+      const make = (cls) => { const p = document.createElementNS(SVGNS,'path'); p.setAttribute('class',cls); return p; };
+      const pathFor = (start, end) => {
+        // horizontal-ease bezier: control points pull toward each other on x
+        const dx = (end.x - start.x);
+        const c1x = start.x + dx * 0.45;
+        const c2x = end.x   - dx * 0.45;
+        return `M ${start.x},${start.y} C ${c1x},${start.y} ${c2x},${end.y} ${end.x},${end.y}`;
+      };
+
+      const built = []; // {d, dir}
+
+      // inputs: node right edge → core left edge
+      inNodes.forEach(n => {
+        const b = n.getBoundingClientRect();
+        const start = { x: b.right - stageBox.left, y: b.top - stageBox.top + b.height/2 };
+        const d = pathFor(start, coreLeft);
+        built.push({ d, dir:'in' });
+        svg.appendChild(Object.assign(make('flow-path'),     {})).setAttribute('d', d);
+        svg.appendChild(Object.assign(make('flow-path-lit'), {})).setAttribute('d', d);
+      });
+
+      // outputs: core right edge → node left edge
+      outNodes.forEach(n => {
+        const b = n.getBoundingClientRect();
+        const end = { x: b.left - stageBox.left, y: b.top - stageBox.top + b.height/2 };
+        const d = pathFor(coreRight, end);
+        built.push({ d, dir:'out' });
+        svg.appendChild(Object.assign(make('flow-path'),     {})).setAttribute('d', d);
+        svg.appendChild(Object.assign(make('flow-path-lit'), {})).setAttribute('d', d);
+      });
+
+      // travelling pulses
+      const reduce = window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+      if (!reduce) {
+        built.forEach((seg, i) => {
+          const c = document.createElementNS(SVGNS,'circle');
+          c.setAttribute('class','flow-pulse');
+          c.setAttribute('r','3.5');
+          if (seg.dir === 'out') c.style.fill = 'var(--moss)';
+          const begin = (seg.dir === 'in' ? i * 0.3 : 1.8 + (i - inNodes.length) * 0.3);
+          c.style.animationDelay = begin + 's';
+          const m = document.createElementNS(SVGNS,'animateMotion');
+          m.setAttribute('dur','3.6s');
+          m.setAttribute('begin', begin + 's');
+          m.setAttribute('repeatCount','indefinite');
+          m.setAttribute('path', seg.d);
+          c.appendChild(m);
+          svg.appendChild(c);
+        });
+      }
+    }
+
+    // initial draw + redraw triggers
+    const redraw = () => requestAnimationFrame(draw);
+    window.__plexosRedrawEngine = redraw;
+    const engIO = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) { stage.classList.add('is-active'); redraw(); }
+      });
+    }, { threshold:.35 });
+    engIO.observe(stage);
+
+    redraw();
+    window.addEventListener('resize', redraw);
+    window.addEventListener('load', redraw);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(redraw);
+  })();
 
   /* ── Responsive grids ── */
   function responsive() {
     const mob = window.innerWidth < 900;
     const g = (id,m,d) => { const el=document.getElementById(id); if(el) el.style.gridTemplateColumns=mob?m:d; };
-    g('howGrid',  '1fr',         '1fr 1fr');
-    g('ecoGrid',  '1fr',         '1fr 1fr');
-    g('mediaGrid','1fr',         'repeat(3,1fr)');
-    g('ctaGrid',  '1fr',         '1fr 1fr');
+    g('howGrid',  '1fr', '1fr 1fr');
+    g('ecoGrid',  '1fr', '1fr 1fr');
+    g('mediaGrid','1fr', 'repeat(3,1fr)');
+    g('ctaGrid',  '1fr', '1fr 1fr');
   }
   responsive();
   window.addEventListener('resize', responsive);
+
+  /* ══════ LANGUAGE SWITCHER ══════ */
+  (function(){
+    const I18N = {
+      pt: {
+        'nav.purpose':'Propósito','nav.method':'Metodologia','nav.lines':'Linhas de Ação',
+        'nav.cta':'Seja Parceiro','nav.contact':'Contato',
+        'hero.eyebrow':'Por Que Existimos',
+        'hero.title':'Tecnologias<br>Emergentes<br>para Bens<br>Públicos',
+        'hero.body':'Com base em nosso mandato estatutário, avançamos P&amp;D aplicada, padrões e pilotos para <span class="hl">infraestrutura pública digital</span> na América Latina. Adotamos o <span class="hl">código aberto</span> e a <span class="hl">privacidade</span> como valores centrais.',
+        'hero.tag':'América Latina · IA · Web3 · IPD',
+        'how.eyebrow':'Como Trabalhamos',
+        'how.title':'P&amp;D Aplicada.<br>Construída na<br>Prática.',
+        'how.body':'O Plexos atua como uma camada de coordenação, conectando governos, instituições e mercados. Transformamos questões complexas em inteligência acionável, e oportunidades emergentes em soluções cotidianas: testadas, refinadas e escaladas no mundo real.',
+        'proof.1.label':'Pesquisa','proof.1.body':'Inteligência técnica para decisões do setor público.',
+        'proof.2.label':'Padrões','proof.2.body':'Modelos de governança, protocolos e trilhos de implementação.',
+        'proof.3.label':'Pilotos','proof.3.body':'Infraestrutura testada em campo com parceiros institucionais reais.',
+        'proof.4.label':'Escala','proof.4.body':'Da experimentação ao valor público duradouro.',
+        'how.engine.eyebrow':'Metodologia em Movimento',
+        'node.in.1':'Governos','node.in.2':'Instituições','node.in.3':'Pessoas','node.in.4':'Mercados',
+        'node.out.1':'Padrões','node.out.2':'Sandboxes','node.out.3':'Pilotos','node.out.4':'Bens Públicos',
+        'what.eyebrow':'O Que Entregamos','what.title':'Três Linhas de Ação Integradas',
+        'line.1.label':'Linha 01','line.1.title':'Educação &amp; Pesquisa','line.1.body':'Fomentando a inovação por meio de workshops, módulos de aprendizagem, inteligência de ecossistema e padrões técnicos para tecnologias emergentes.',
+        'line.2.label':'Linha 02','line.2.title':'Desenvolvimento','line.2.body':'Desenhando, prototipando e implantando pilotos, infraestrutura e sistemas interoperáveis que atendem a necessidades reais do setor público.',
+        'line.3.label':'Linha 03','line.3.title':'Parcerias','line.3.body':'Estruturando acordos de cooperação, marcos jurídicos e programas multissetoriais para coordenar a entrega de valor público de longo prazo.',
+        'eco.eyebrow':'Nosso Ecossistema em Ação','eco.title':'Projetos, Notícias &amp; Parceiros',
+        'eco.body':'Um portfólio vivo de cooperação técnica, pesquisa institucional, pilotos aplicados e iniciativas de construção de ecossistema que conectam tecnologias emergentes a resultados públicos reais.',
+        'partner.recife':'Prefeitura do Recife','partner.rbb':'Rede Blockchain Brasil',
+        'card.1.tag':'Notícia','card.1.title':'Acordo de Cooperação Técnica com a Prefeitura do Recife','card.1.cta':'Ler no site da Prefeitura ↗',
+        'card.2.tag':'Documento','card.2.title':'Coordenação da RBB &amp; Marco de Governança','card.2.cta':'Ver ata do Comitê Executivo ↗',
+        'card.3.tag':'Iniciativa','card.3.title':'[RE]City — Cidade Pop-Up Regenerativa no Recife','card.3.cta':'Conhecer a [RE]City ↗',
+        'cta.eyebrow':'Seja Parceiro','cta.title':'Construa a Próxima Camada da Infraestrutura Pública','cta.button':'Fale Conosco ↗',
+        'footer.copy':'© 2026 Instituto Plexos'
+      },
+      en: {
+        'nav.purpose':'Purpose','nav.method':'Methodology','nav.lines':'Action Lines',
+        'nav.cta':'Partner With Us','nav.contact':'Contact',
+        'hero.eyebrow':'Why We Exist',
+        'hero.title':'Emerging<br>Technologies<br>for Public<br>Goods',
+        'hero.body':'Rooted in our statutory mandate, we advance applied R&amp;D, standards, and pilots for <span class="hl">digital public infrastructure</span> across Latin America. We hold <span class="hl">open source</span> and <span class="hl">privacy</span> as core values.',
+        'hero.tag':'Latin America · AI · Web3 · DPI',
+        'how.eyebrow':'How We Work',
+        'how.title':'Applied R&amp;D.<br>Built in<br>Practice.',
+        'how.body':'Plexos operates as a coordination layer, weaving together governments, institutions, and markets. We turn complex questions into actionable intelligence, and emerging opportunities into everyday solutions: tested, refined, and scaled in the real world.',
+        'proof.1.label':'Research','proof.1.body':'Technical intelligence for public-sector decisions.',
+        'proof.2.label':'Standards','proof.2.body':'Governance models, protocols, and implementation rails.',
+        'proof.3.label':'Pilots','proof.3.body':'Field-tested infrastructure with real institutional partners.',
+        'proof.4.label':'Scale','proof.4.body':'From experimentation to durable public value.',
+        'how.engine.eyebrow':'Methodology in Motion',
+        'node.in.1':'Governments','node.in.2':'Institutions','node.in.3':'People','node.in.4':'Markets',
+        'node.out.1':'Standards','node.out.2':'Sandboxes','node.out.3':'Pilots','node.out.4':'Public Goods',
+        'what.eyebrow':'What We Deliver','what.title':'Three Integrated Action Lines',
+        'line.1.label':'Line 01','line.1.title':'Education &amp; Research','line.1.body':'Fostering innovation through workshops, learning modules, ecosystem intelligence, and technical standards for emerging technology.',
+        'line.2.label':'Line 02','line.2.title':'Development','line.2.body':'Designing, prototyping, and deploying pilots, infrastructure, and interoperable systems that address real public-sector needs.',
+        'line.3.label':'Line 03','line.3.title':'Partnerships','line.3.body':'Structuring cooperation agreements, legal frameworks, and multi-stakeholder programs to coordinate long-term delivery of public value.',
+        'eco.eyebrow':'Our Ecosystem in Action','eco.title':'Projects, News &amp; Partners',
+        'eco.body':'A living portfolio of technical cooperation, institutional research, applied pilots, and ecosystem-building initiatives connecting emerging technologies with real public outcomes.',
+        'partner.recife':'Recife City Hall','partner.rbb':'Brazil Blockchain Network',
+        'card.1.tag':'News','card.1.title':'Technical Cooperation Agreement with Recife City Hall','card.1.cta':'Read on the City Hall site ↗',
+        'card.2.tag':'Document','card.2.title':'RBB Coordination &amp; Governance Framework','card.2.cta':'View Executive Committee minutes ↗',
+        'card.3.tag':'Initiative','card.3.title':'[RE]City — Regenerative Pop-Up City in Recife','card.3.cta':'Discover [RE]City ↗',
+        'cta.eyebrow':'Partner With Us','cta.title':'Build the Next Layer of Public Infrastructure','cta.button':'Contact Us ↗',
+        'footer.copy':'© 2026 Plexos Institute'
+      }
+    };
+
+    const nodes = [...document.querySelectorAll('[data-i18n]')];
+    const toggles = [...document.querySelectorAll('.lang-toggle')];
+
+    function apply(lang){
+      const dict = I18N[lang] || I18N.pt;
+      nodes.forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        const val = dict[key];
+        if (val == null) return;
+        if (el.hasAttribute('data-i18n-html')) el.innerHTML = val;
+        else el.textContent = val;
+      });
+      document.documentElement.lang = (lang === 'en' ? 'en' : 'pt-BR');
+      document.documentElement.setAttribute('data-lang', lang);
+      // reflect active state in both toggles
+      toggles.forEach(t => t.querySelectorAll('.lang-opt').forEach(o => {
+        o.classList.toggle('active', o.getAttribute('data-lang') === lang);
+      }));
+      try { localStorage.setItem('plexos-lang', lang); } catch(e){}
+      // engine connectors depend on label widths — redraw after text settles
+      if (window.__plexosRedrawEngine) requestAnimationFrame(() => requestAnimationFrame(window.__plexosRedrawEngine));
+    }
+
+    function current(){ return document.documentElement.getAttribute('data-lang') || 'pt'; }
+
+    toggles.forEach(t => t.addEventListener('click', () => {
+      apply(current() === 'pt' ? 'en' : 'pt');
+    }));
+
+    // initial paint (HTML ships PT, so only act if EN was chosen/detected)
+    apply(current());
+  })();
 </script>
 
 </body>
