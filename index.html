@@ -44,7 +44,7 @@
     animation:grainShift 7s steps(6) infinite;}
   @keyframes grainShift{0%{transform:translate(0,0)}20%{transform:translate(-4%,3%)}40%{transform:translate(3%,-4%)}60%{transform:translate(-3%,2%)}80%{transform:translate(4%,-2%)}100%{transform:translate(0,0)}}
 
-  .display-xl{font-family:var(--display); font-weight:900; text-transform:uppercase; font-size:clamp(2.9rem,7.4vw,7.4rem); line-height:.9; letter-spacing:-.04em;}
+  .display-xl{font-family:var(--display); font-weight:900; text-transform:uppercase; font-size:clamp(2.2rem,.2rem + 5.6vw,5rem); line-height:.98; letter-spacing:-.04em;}
   .display-lg{font-family:var(--display); font-weight:900; text-transform:uppercase; font-size:clamp(2.3rem,4.6vw,4.6rem); line-height:.96; letter-spacing:-.03em;}
   .display-md{font-family:var(--display); font-weight:900; text-transform:uppercase; font-size:clamp(1.5rem,2.5vw,2.4rem); line-height:1.04; letter-spacing:-.02em;}
   .eyebrow{font-family:var(--mono); font-size:.6rem; letter-spacing:.26em; text-transform:uppercase; display:flex; align-items:center; gap:.7rem;}
@@ -93,9 +93,9 @@
   .h-eyebrow{opacity:0; margin-bottom:1.7rem; animation:fadeUp .8s .35s cubic-bezier(.16,1,.3,1) forwards;}
   .ping{width:7px; height:7px; border-radius:50%; background:var(--mustard); animation:dotPing 2.4s ease-out infinite;}
   @keyframes dotPing{0%{box-shadow:0 0 0 0 rgba(233,193,115,.6);}70%{box-shadow:0 0 0 9px rgba(233,193,115,0);}100%{box-shadow:0 0 0 0 rgba(233,193,115,0);}}
-  .hero-title{margin-bottom:2rem; overflow-wrap:break-word; word-break:break-word; hyphens:auto;}
+  .hero-title{margin-bottom:2rem;}
   .line{display:block; overflow:hidden; padding-bottom:.05em;}
-  .line>span{display:block; transform:translateY(118%); animation:lineRise 1s cubic-bezier(.16,1,.3,1) forwards;}
+  .line>span{display:block; white-space:nowrap; transform:translateY(118%); animation:lineRise 1s cubic-bezier(.16,1,.3,1) forwards;}
   .line:nth-child(1)>span{animation-delay:1.15s;} .line:nth-child(2)>span{animation-delay:1.27s;}
   .line:nth-child(3)>span{animation-delay:1.39s;} .line:nth-child(4)>span{animation-delay:1.51s;}
   @keyframes lineRise{to{transform:translateY(0);}}
@@ -133,9 +133,6 @@
   .scroll-hint .track::after{content:""; position:absolute; top:0; left:0; width:100%; height:40%; background:var(--moss); animation:scrollDrop 1.8s cubic-bezier(.7,0,.3,1) infinite;}
   @keyframes scrollDrop{0%{transform:translateY(-100%)}100%{transform:translateY(250%)}}
   @keyframes fadeUp{from{opacity:0;transform:translateY(22px);}to{opacity:1;transform:none;}}
-  @media(max-width:1180px){
-    .display-xl{font-size:clamp(2.7rem,6.6vw,5.6rem);}
-  }
   @media(max-width:880px){#hero{grid-template-columns:1fr; align-items:end;} .hero-mark{position:absolute; inset:0; place-items:center; opacity:.14; z-index:0;} .mark-svg{width:min(82vw,520px);} .hero-content{order:2; max-width:100%;}}
 
   .reveal{opacity:0; transform:translateY(24px); transition:opacity .8s cubic-bezier(.16,1,.3,1), transform .8s cubic-bezier(.16,1,.3,1);}
@@ -416,7 +413,7 @@
     <div class="media-grid reveal d2">
       <a class="media-card" href="https://redeblockchainbrasil.org/" target="_blank" rel="noopener">
         <span class="label" style="color:var(--mustard);" data-i18n="card.1.tag">Lançamento</span>
-        <div><p class="ct" data-i18n="card.1.title">RBB Lança Site Institucional</p><span class="card-arrow" data-i18n="card.1.cta">Visitar redeblockchainbrasil.org ↗</span></div>
+        <div><p class="ct" data-i18n="card.1.title">Sob Coordenação do Plexos, RBB Lança Site Institucional</p><span class="card-arrow" data-i18n="card.1.cta">Visitar redeblockchainbrasil.org ↗</span></div>
       </a>
       <a class="media-card" href="https://github.com/RBBNet/rbb/blob/master/governanca/reunioes_comite_executivo/atas/2026-03-12-RBB-Ata-42-CE-v02-assinada.pdf" target="_blank" rel="noopener">
         <span class="label" style="color:var(--mustard);" data-i18n="card.2.tag">Documento</span>
@@ -528,7 +525,7 @@
         'eco.eyebrow':'Nosso Ecossistema em Ação','eco.title':'Projetos, Notícias <span class="accent">&amp;</span> Parceiros',
         'eco.body':'Um portfólio vivo de cooperação técnica, pesquisa institucional, pilotos aplicados e iniciativas de construção de ecossistema que conectam tecnologias emergentes a resultados públicos reais.',
         'partner.recife':'Prefeitura do Recife','partner.rbb':'Rede Blockchain Brasil',
-        'card.1.tag':'Lançamento','card.1.title':'RBB Lança Site Institucional','card.1.cta':'Visitar redeblockchainbrasil.org ↗',
+        'card.1.tag':'Lançamento','card.1.title':'Sob Coordenação do Plexos, RBB Lança Site Institucional','card.1.cta':'Visitar redeblockchainbrasil.org ↗',
         'card.2.tag':'Documento','card.2.title':'Coordenação da RBB &amp; Marco de Governança','card.2.cta':'Ver ata do Comitê Executivo ↗',
         'card.3.tag':'Entrevista','card.3.title':'Piloto de Sergipe com a E-Dinheiro na Entrevista da RBB à CNBC','card.3.cta':'Assistir à entrevista ↗',
         'card.4.tag':'Iniciativa','card.4.title':'[RE]City — Cidade Pop-Up Regenerativa no Recife','card.4.cta':'Conhecer a [RE]City ↗',
@@ -559,9 +556,9 @@
         'eco.eyebrow':'Our Ecosystem in Action','eco.title':'Projects, News <span class="accent">&amp;</span> Partners',
         'eco.body':'A living portfolio of technical cooperation, institutional research, applied pilots, and ecosystem-building initiatives connecting emerging technologies with real public outcomes.',
         'partner.recife':'Recife City Hall','partner.rbb':'Brazil Blockchain Network',
-        'card.1.tag':'Launch','card.1.title':'RBB Launches Institutional Website','card.1.cta':'Visit redeblockchainbrasil.org ↗',
+        'card.1.tag':'Launch','card.1.title':'Under Plexos Coordination, RBB Launches Institutional Website','card.1.cta':'Visit redeblockchainbrasil.org ↗',
         'card.2.tag':'Document','card.2.title':'RBB Coordination &amp; Governance Framework','card.2.cta':'View Executive Committee minutes ↗',
-        'card.3.tag':'Interview','card.3.title':'Sergipe Pilot with E-Dinheiro Featured in RBB&#39;s CNBC Interview','card.3.cta':'Watch the interview ↗',
+        'card.3.tag':'Interview','card.3.title':"Sergipe Pilot with E-Dinheiro Featured in RBB's CNBC Interview",'card.3.cta':'Watch the interview ↗',
         'card.4.tag':'Initiative','card.4.title':'[RE]City — Regenerative Pop-Up City in Recife','card.4.cta':'Discover [RE]City ↗',
         'cta.eyebrow':'Partner With Us','cta.title':'Build the Next Layer of <span class="accent">Public</span> Infrastructure','cta.button':'Contact Us ↗',
         'footer.copy':'© 2026 Plexos Institute'
